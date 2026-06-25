@@ -4,10 +4,15 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'galai_google_pwa.html'));
+});
 
 app.get('/api/search', async (req, res) => {
   try {
@@ -16,6 +21,7 @@ app.get('/api/search', async (req, res) => {
 
     const key = process.env.GOOGLE_API_KEY;
     const cx = process.env.GOOGLE_CX;
+
     if (!key || !cx) {
       return res.status(500).json({
         error: 'Server is missing GOOGLE_API_KEY or GOOGLE_CX environment variables'
@@ -56,5 +62,5 @@ app.get('/api/search', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`GALAI is running: http://localhost:${PORT}/galai_google_pwa.html`);
+  console.log(`GALAI is running on port ${PORT}`);
 });
