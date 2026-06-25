@@ -13,7 +13,7 @@ const model = genAI.getGenerativeModel({
 });
 
 export async function askGeminiWithSearch(userMessage, searchResults = []) {
-}
+
   const sourcesText = searchResults
     .map((item, index) => {
       return `[${index + 1}] ${item.title}
@@ -42,7 +42,3 @@ ${sourcesText || "Нет результатов поиска."}
 
   return response.text();
 }
-
-module.exports = {
-  askGeminiWithSearch
-};
