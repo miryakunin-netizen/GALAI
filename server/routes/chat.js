@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const { googleSearch } = require("../services/google");
-const { askGeminiWithSearch } = require("../services/gemini");
+import { googleSearch } from "../services/google.js";
+import { askGeminiWithSearch } from "../services/gemini.js";
 
 function shouldUseSearch(message) {
   const text = message.toLowerCase();

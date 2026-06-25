@@ -199,7 +199,7 @@ app.post('/api/chat', async (req, res) => {
 
 app.listen(PORT, () => console.log(`GALAI 3.1 running on port ${PORT}`));
 
-const searchRoute = require("./server/routes/search");
+import searchRoute from "./server/routes/search.js";
 
 app.use("/api/search", searchRoute);
 
