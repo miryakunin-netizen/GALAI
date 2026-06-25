@@ -264,7 +264,7 @@
 
     /* ── MOBILE NAV ── */
     #mobile-menu-btn {
-      display: none; position: fixed; top: 12px; left: 12px; z-index: 200;
+      display: none; position: fixed; top: 12px; left: 12px; z-index: 1200;
       width: 40px; height: 40px; border-radius: 10px;
       background: rgba(20,16,40,0.85); border: 1px solid rgba(167,139,250,0.25);
       color: #fff; font-size: 18px; align-items: center; justify-content: center;
@@ -272,16 +272,17 @@
     }
     #sidebar-backdrop {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-      z-index: 90; backdrop-filter: blur(2px);
+      z-index: 900; backdrop-filter: blur(2px); pointer-events: none;
     }
-    #sidebar-backdrop.open { display: block; }
+    #sidebar-backdrop.open { display: block; pointer-events: auto; }
+    #sidebar, #sidebar * { pointer-events: auto; }
 
     /* ── RESPONSIVE BREAKPOINT ── */
     @media (max-width: 768px) {
       #mobile-menu-btn { display: flex; }
 
       #sidebar {
-        position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+        position: fixed; top: 0; left: 0; height: 100vh; z-index: 1000;
         width: 78vw; max-width: 290px;
         transform: translateX(-100%); transition: transform 0.25s ease;
       }
@@ -475,15 +476,48 @@
 
   // ── Tab switching ──
   function switchTab(tab) {
-    document.getElementById('tab-chat').classList.toggle('active', tab==='chat');
-    document.getElementById('tab-voice').classList.toggle('active', tab==='voice');
-    document.getElementById('chat-tab').style.display = tab==='chat' ? 'flex' : 'none';
-    const vt = document.getElementById('voice-tab');
-    vt.style.display = tab==='voice' ? 'flex' : 'none';
-    document.getElementById('projects-list').style.display = tab==='chat' ? 'block' : 'none';
-    document.getElementById('new-project-area').style.display = tab==='chat' ? 'block' : 'none';
-    if(window.innerWidth <= 768) toggleMobileSidebar(false);
+    var isVoice = tab === 'voice';
+    var chatTabBtn = document.getElementById('tab-chat');
+    var voiceTabBtn = document.getElementById('tab-voice');
+    var chatTab = document.getElementById('chat-tab');
+    var voiceTab = document.getElementById('voice-tab');
+    var projectsList = document.getElementById('projects-list');
+    var newProjectArea = document.getElementById('new-project-area');
+
+    if (chatTabBtn) chatTabBtn.classList.toggle('active', !isVoice);
+    if (voiceTabBtn) voiceTabBtn.classList.toggle('active', isVoice);
+    if (chatTab) {
+      chatTab.classList.toggle('active', !isVoice);
+      chatTab.style.display = isVoice ? 'none' : 'flex';
+    }
+    if (voiceTab) {
+      voiceTab.classList.toggle('active', isVoice);
+      voiceTab.style.display = isVoice ? 'flex' : 'none';
+    }
+    if (projectsList) projectsList.style.display = isVoice ? 'none' : 'block';
+    if (newProjectArea) newProjectArea.style.display = isVoice ? 'none' : 'block';
+
+    // On iPhone/iPad speech recognition may be unavailable, but the voice page itself
+    // must still open and show the typed fallback.
+    if (isVoice) {
+      setTimeout(function(){
+        var fallback = document.getElementById('voice-type-fallback');
+        var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isIOS && fallback && !(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+          fallback.style.display = 'flex';
+          var status = document.getElementById('voice-status');
+          var transcript = document.getElementById('voice-transcript');
+          if (status) status.textContent = 'Голосовой режим';
+          if (transcript && !transcript.textContent.trim()) {
+            transcript.textContent = 'На iPhone голосовой ввод может быть недоступен. Напиши текст ниже — GALAI ответит и озвучит ответ.';
+          }
+        }
+      }, 0);
+    }
+
+    if(window.innerWidth <= 768 && typeof toggleMobileSidebar === 'function') toggleMobileSidebar(false);
   }
+  window.switchTab = switchTab;
 
   // ── Mobile sidebar (hamburger drawer) ──
   function toggleMobileSidebar(force){
@@ -1512,9 +1546,25 @@
       if(transcript) handleVoiceInput(transcript);
       else setVoiceStatus('Нажми для разговора');
     };
-    recognition.onerror=e=>{recognition=null;setOrbState('');stopWave();setVoiceStatus('Нажми для разговора');};
-    recognition.start();
+    recognition.onerror=e=>{
+      recognition=null;setOrbState('');stopWave();
+      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      setVoiceStatus(isIOS ? 'Голосовой ввод недоступен' : 'Нажми для разговора','');
+      if(isIOS){
+        var fallback = document.getElementById('voice-type-fallback');
+        if(fallback) fallback.style.display = 'flex';
+        setVoiceTranscript('Если iPhone не разрешает микрофон в браузере, напиши текст ниже — GALAI ответит голосом или текстом.','');
+      }
+    };
+    try { recognition.start(); } catch(err) {
+      recognition=null; setOrbState(''); stopWave();
+      setVoiceStatus('Голосовой ввод недоступен','');
+      var fallback = document.getElementById('voice-type-fallback');
+      if(fallback) fallback.style.display = 'flex';
+      setVoiceTranscript('Голосовой ввод не запустился. Напиши текст ниже — GALAI ответит.','');
+    }
   }
+  window.toggleVoice = toggleVoice;
 
   // ── Input events ──
   const msgInput=document.getElementById('msg-input');
@@ -1909,6 +1959,56 @@
     window.initGalaiEngine = initGalaiEngine;
     initGalaiEngine();
   })();
+
+
+  // ── Extra mobile/iPhone safety: make buttons work even if inline handlers are blocked/cached ──
+  document.addEventListener('DOMContentLoaded', function(){
+    var voiceTabBtn = document.getElementById('tab-voice');
+    var chatTabBtn = document.getElementById('tab-chat');
+    var orb = document.getElementById('voice-orb');
+    var backdrop = document.getElementById('sidebar-backdrop');
+    if (voiceTabBtn) voiceTabBtn.addEventListener('click', function(e){ e.preventDefault(); switchTab('voice'); }, {passive:false});
+    if (chatTabBtn) chatTabBtn.addEventListener('click', function(e){ e.preventDefault(); switchTab('chat'); }, {passive:false});
+    if (orb) orb.addEventListener('click', function(e){ e.preventDefault(); toggleVoice(); }, {passive:false});
+    if (backdrop) backdrop.addEventListener('click', function(){ toggleMobileSidebar(false); });
+  });
+
+
+  // ── iPhone menu hard fix: use touch/pointer delegation, not only onclick ──
+  (function(){
+    function fire(el){
+      if(!el) return;
+      if(el.id === 'mobile-menu-btn') { toggleMobileSidebar(); return; }
+      if(el.id === 'sidebar-backdrop') { toggleMobileSidebar(false); return; }
+      if(el.id === 'tab-chat') { switchTab('chat'); return; }
+      if(el.id === 'tab-voice') { switchTab('voice'); return; }
+      if(el.id === 'voice-orb') { toggleVoice(); return; }
+      if(el.id === 'voice-picker-btn') { toggleVoicePicker(); return; }
+      if(el.id === 'model-picker-btn') { toggleModelPicker(); return; }
+      // For dynamic chat/project/new-project elements use their existing handlers.
+      if(typeof el.click === 'function') el.click();
+    }
+
+    var lastTouch = 0;
+    function handler(e){
+      var target = e.target;
+      if(!target || !target.closest) return;
+      var el = target.closest('#mobile-menu-btn,#sidebar-backdrop,#tab-chat,#tab-voice,#new-project-btn,#new-project-confirm,.project-header,.chat-row,.new-chat-row,#model-picker-btn,#voice-picker-btn,#voice-orb');
+      if(!el) return;
+      // Only intercept touch/pointer on touch devices; normal desktop clicks stay normal.
+      if(e.type === 'touchend') lastTouch = Date.now();
+      if(e.type === 'click' && Date.now() - lastTouch < 450) return;
+      e.preventDefault();
+      e.stopPropagation();
+      fire(el);
+    }
+
+    document.addEventListener('touchend', handler, {capture:true, passive:false});
+    document.addEventListener('pointerup', function(e){
+      if(e.pointerType === 'touch') handler(e);
+    }, {capture:true, passive:false});
+  })();
+
 </script>
 </body>
 </html>
