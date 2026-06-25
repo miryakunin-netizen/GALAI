@@ -14,6 +14,14 @@ const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-f
 const GOOGLE_RESULTS = process.env.GOOGLE_RESULTS || '6';
 
 app.use(express.json({ limit: '2mb' }));
+app.get("/api/check", (req, res) => {
+  res.json({
+    ok: true,
+    gemini: Boolean(process.env.GEMINI_API_KEY),
+    googleApi: Boolean(process.env.GOOGLE_API_KEY),
+    googleCx: Boolean(process.env.GOOGLE_CX)
+  });
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
@@ -208,12 +216,3 @@ import chatRoute from "./server/routes/chat.js";
 app.use("/api/chat", chatRoute);
 
 app.use("/api/upload", uploadRoute);
-
-app.get("/api/check", (req, res) => {
-  res.json({
-    ok: true,
-    gemini: Boolean(process.env.GEMINI_API_KEY),
-    googleApi: Boolean(process.env.GOOGLE_API_KEY),
-    googleCx: Boolean(process.env.GOOGLE_CX)
-  });
-});
