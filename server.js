@@ -208,3 +208,12 @@ import chatRoute from "./server/routes/chat.js";
 app.use("/api/chat", chatRoute);
 
 app.use("/api/upload", uploadRoute);
+
+app.get("/api/check", (req, res) => {
+  res.json({
+    ok: true,
+    gemini: Boolean(process.env.GEMINI_API_KEY),
+    googleApi: Boolean(process.env.GOOGLE_API_KEY),
+    googleCx: Boolean(process.env.GOOGLE_CX)
+  });
+});
