@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import uploadRoute from "./server/routes/upload.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -205,3 +206,5 @@ app.use("/api/search", searchRoute);
 
 import chatRoute from "./server/routes/chat.js";
 app.use("/api/chat", chatRoute);
+
+app.use("/api/upload", uploadRoute);
