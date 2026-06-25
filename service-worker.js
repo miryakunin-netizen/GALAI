@@ -1,4 +1,4 @@
-const CACHE_NAME = 'galai-v4-icon-no-cache';
+const CACHE_NAME = 'galai-v5-mobile-fix';
 self.addEventListener('install', event => self.skipWaiting());
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
