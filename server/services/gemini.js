@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -12,7 +12,7 @@ const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash"
 });
 
-async function askGeminiWithSearch(userMessage, searchResults = []) {
+export async function askGeminiWithSearch(...)
   const sourcesText = searchResults
     .map((item, index) => {
       return `[${index + 1}] ${item.title}
