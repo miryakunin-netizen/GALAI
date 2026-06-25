@@ -1,8 +1,8 @@
-const express = require("express");
-const router = express.Router();
-
+import express from "express";
 import { googleSearch } from "../services/google.js";
 import { askGeminiWithSearch } from "../services/gemini.js";
+
+const router = express.Router();
 
 function shouldUseSearch(message) {
   const text = message.toLowerCase();
@@ -55,4 +55,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
