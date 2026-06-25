@@ -961,18 +961,7 @@
 '  return arr.some(s=>s.x===head.x&&s.y===head.y);\n' +
 '}\n' +
 'const game=setInterval(draw,120);\n' +
-'<\/script>
-<script>
-  // PWA service worker: работает только если файл открыт через http/https, не file://
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./service-worker.js').catch(function(err){
-        console.warn('GALAI service worker registration failed:', err);
-      });
-    });
-  }
-</script>
-</body></html>\n\n' +
+'<\/script></body></html>\n\n' +
 'Управление — стрелки. Хочешь добавить уровни сложности или мобильное управление свайпами?';
 
   const TICTACTOE_CODE = 'Вот крестики-нолики на HTML+JS:\n\n' +
@@ -1928,6 +1917,13 @@
     window.initGalaiEngine = initGalaiEngine;
     initGalaiEngine();
   })();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./service-worker.js').catch(function(err){ console.warn('SW failed', err); });
+  });
+}
 </script>
 </body>
 </html>
