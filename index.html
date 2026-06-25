@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GALAI</title>
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#05040F" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="GALAI" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" /><style>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0619">
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #05040F; font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; }
     #app { overflow: hidden; }
@@ -337,26 +337,19 @@
     }
 
 
-    /* GALAI Railway/mobile fix */
+    /* GALAI Railway/iPhone safe viewport patch */
+    html, body, #app { min-height: 100dvh; }
     @supports (-webkit-touch-callout: none) {
       html, body { height: -webkit-fill-available; }
-      #app, #main { min-height: -webkit-fill-available; }
+      #app, #main, #sidebar { min-height: -webkit-fill-available; }
+      #input-area { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
     }
-    #sidebar-backdrop { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
     @media (max-width: 768px) {
-      body { position: fixed; inset: 0; width: 100%; overflow: hidden; }
-      #app { height: 100dvh !important; min-height: 100dvh; }
-      #main { height: 100dvh !important; min-height: 100dvh; }
-      #chat-tab { height: 100%; min-height: 0; }
-      #messages-wrap { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 8px 8px; }
-      #input-area { position: sticky; bottom: 0; z-index: 30; padding: 10px 12px calc(12px + env(safe-area-inset-bottom)); background: rgba(5,4,20,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-      #input-inner { max-width: none; }
-      #msg-input { min-height: 28px; max-height: 110px; }
-      #sidebar { z-index: 300; }
-      #sidebar-backdrop { z-index: 250; background: rgba(0,0,0,0.32) !important; }
-      #mobile-menu-btn { z-index: 350; }
-      #voice-tab { height: 100dvh; padding: 70px 0 calc(18px + env(safe-area-inset-bottom)); justify-content: flex-start; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-      #voice-type-fallback { display: flex; }
+      body { overflow: hidden; }
+      #main { height: 100dvh; }
+      #messages-wrap { padding-bottom: 6px; }
+      #input-area { position: sticky; bottom: 0; background: rgba(5,4,20,0.92); backdrop-filter: blur(12px); }
+      #sidebar-backdrop.open { backdrop-filter: none; }
     }
 
   </style>
@@ -381,7 +374,7 @@
     <div id="projects-list"></div>
     <div id="new-project-area">
       <button id="new-project-btn">✦ Новый проект</button>
-      <button onclick="galaiResetChats()" style="width:100%;margin-top:8px;padding:7px 12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.18);border-radius:8px;color:rgba(248,113,113,0.72);font-size:12px;cursor:pointer;font-family:Inter,sans-serif;text-align:left">↺ Сбросить чаты</button>
+      <button onclick="galaiResetChats()" style="width:100%;margin-top:8px;padding:8px 12px;background:rgba(248,113,113,0.08);border:1px dashed rgba(248,113,113,0.25);border-radius:8px;color:rgba(248,113,113,0.7);font-size:12px;cursor:pointer;font-family:Inter,sans-serif;text-align:left">🗑 Сбросить чаты</button>
       <div id="new-project-form">
         <input id="new-project-name-input" class="cosmic-input" placeholder="Название проекта..." />
         <button id="new-project-confirm" class="confirm-btn" style="background:#A78BFA;">✓</button>
@@ -431,7 +424,7 @@
         <button id="voice-picker-btn" onclick="toggleVoicePicker()">🔊 <span class="vp-label" id="voice-picker-label">Авто</span> ▾</button>
         <div id="voice-picker-menu"></div>
       </div>
-      <div id="voice-orb-wrap">
+      <div id="voice-orb-wrap" id="voice-orb-wrap">
         <div class="voice-ring r1"></div>
         <div class="voice-ring r2"></div>
         <div class="voice-ring r3"></div>
@@ -519,30 +512,32 @@
     {id:2,name:"Работа",color:"#60A5FA",chats:[{id:201,name:"Анализ данных",messages:[{role:"assistant",text:"Привет! Чем могу помочь?"}]}]}
   ];
 
-
-
-  // ── Persist chats/projects in browser ──
-  const GALAI_STATE_KEY = 'galai_projects_state_v2';
-  function saveGalaiState(){
-    try { localStorage.setItem(GALAI_STATE_KEY, JSON.stringify({projects, nextId, activeChatId, activeProjectId, collapsed})); }
-    catch(e){ console.warn('GALAI save failed:', e); }
-  }
+  // ── Chat/project persistence ──
   function loadGalaiState(){
     try {
-      const raw = localStorage.getItem(GALAI_STATE_KEY);
+      var raw = localStorage.getItem('galai_projects_v2');
       if(!raw) return;
-      const s = JSON.parse(raw);
-      if(Array.isArray(s.projects) && s.projects.length){
-        projects.splice(0, projects.length, ...s.projects);
-        if(typeof s.nextId === 'number') nextId = Math.max(s.nextId, nextId);
-        if(typeof s.activeChatId === 'number') activeChatId = s.activeChatId;
-        if(typeof s.activeProjectId === 'number') activeProjectId = s.activeProjectId;
-        if(s.collapsed && typeof s.collapsed === 'object') Object.assign(collapsed, s.collapsed);
+      var data = JSON.parse(raw);
+      if(data && Array.isArray(data.projects) && data.projects.length){
+        projects.splice(0, projects.length);
+        data.projects.forEach(function(p){ projects.push(p); });
+        nextId = Number(data.nextId) || nextId;
+        activeChatId = Number(data.activeChatId) || (projects[0] && projects[0].chats[0] && projects[0].chats[0].id) || activeChatId;
+        activeProjectId = Number(data.activeProjectId) || (projects[0] && projects[0].id) || activeProjectId;
       }
-    } catch(e){ console.warn('GALAI load failed:', e); }
+    } catch(e){ console.warn('GALAI state load failed:', e); }
   }
-  window.galaiResetChats = function(){ localStorage.removeItem(GALAI_STATE_KEY); location.reload(); };
+  function saveGalaiState(){
+    try {
+      localStorage.setItem('galai_projects_v2', JSON.stringify({projects:projects,nextId:nextId,activeChatId:activeChatId,activeProjectId:activeProjectId}));
+    } catch(e){ console.warn('GALAI state save failed:', e); }
+  }
+  window.galaiResetChats = function(){
+    localStorage.removeItem('galai_projects_v2');
+    location.reload();
+  };
   loadGalaiState();
+
 
   function getActiveChat(){return projects.flatMap(p=>p.chats).find(c=>c.id===activeChatId);}
   function getActiveProject(){return projects.find(p=>p.id===activeProjectId);}
@@ -597,28 +592,29 @@
   }
 
 
-  // ── Google Search via Railway backend ──
+  // ── Google Search via Railway backend (/api/search); falls back to built-in sources if unavailable ──
   async function galaiGoogleSearch(query){
     try {
-      if (!location.protocol.startsWith('http')) return null;
-      const res = await fetch('/api/search?q=' + encodeURIComponent(query));
-      if (!res.ok) return null;
-      const data = await res.json();
-      if (!data.items || !data.items.length) return null;
+      var res = await fetch('/api/search?q=' + encodeURIComponent(query));
+      if(!res.ok) return null;
+      var data = await res.json();
+      if(!data.items || !data.items.length) return null;
       return '🌐 Найдено через Google:\n\n' + data.items.slice(0,7).map(function(item, i){
         return (i+1) + '. ' + (item.title || 'Без названия') + '\n' +
-          (item.snippet || '') + '\n' + (item.link || '');
+          (item.snippet || '') + '\n' +
+          (item.link || '');
       }).join('\n\n');
-    } catch(e) {
-      console.warn('GALAI Google search failed:', e);
+    } catch(e){
+      console.warn('GALAI Google Search unavailable, using fallback sources:', e);
       return null;
     }
   }
 
-  // ── Internet lookup (Wikipedia, no API key needed) ──
+  // ── Internet lookup (Wikipedia/DuckDuckGo fallback, no API key needed in browser) ──
   async function galaiWebLookup(query){
-    var googleAnswer = await galaiGoogleSearch(query);
-    if (googleAnswer) return googleAnswer;
+    var googleResult = await galaiGoogleSearch(query);
+    if(googleResult) return googleResult;
+
     var lower = query.toLowerCase();
 
     // Country-specific factual questions (capital, population, currency,
@@ -971,13 +967,7 @@
 '  return arr.some(s=>s.x===head.x&&s.y===head.y);\n' +
 '}\n' +
 'const game=setInterval(draw,120);\n' +
-'<\/script>
-<script>
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('/service-worker.js').catch(function(e){ console.warn('SW registration failed', e); }); });
-}
-</script>
-</body></html>\n\n' +
+'<\/script></body></html>\n\n' +
 'Управление — стрелки. Хочешь добавить уровни сложности или мобильное управление свайпами?';
 
   const TICTACTOE_CODE = 'Вот крестики-нолики на HTML+JS:\n\n' +
@@ -1021,13 +1011,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 '}\n' +
 'function resetGame(){board=Array(9).fill("");current="X";active=true;document.getElementById("status").textContent="Ход: X";render();}\n' +
 'render();\n' +
-'<\/script>
-<script>
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('/service-worker.js').catch(function(e){ console.warn('SW registration failed', e); }); });
-}
-</script>
-</body></html>\n\n' +
+'<\/script></body></html>\n\n' +
 'Хочешь добавить ИИ-противника, с которым можно играть против компьютера?';
 
   const PONG_CODE = 'Вот понг на HTML+JS:\n\n' +
@@ -1064,13 +1048,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 '  requestAnimationFrame(loop);\n' +
 '}\n' +
 'loop();\n' +
-'<\/script>
-<script>
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('/service-worker.js').catch(function(e){ console.warn('SW registration failed', e); }); });
-}
-</script>
-</body></html>\n\n' +
+'<\/script></body></html>\n\n' +
 'Хочешь сделать управление с двух сторон (для игры вдвоём) вместо ИИ?';
 
   const CALC_CODE = 'Вот калькулятор на HTML+JS:\n\n' +
@@ -1103,13 +1081,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 '  try{display.textContent=eval(current.replace("%","/100"));current=display.textContent;}\n' +
 '  catch(e){display.textContent="Ошибка";current="";}\n' +
 '}\n' +
-'<\/script>
-<script>
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('/service-worker.js').catch(function(e){ console.warn('SW registration failed', e); }); });
-}
-</script>
-</body></html>\n\n' +
+'<\/script></body></html>\n\n' +
 'Хочешь добавить научные функции (синус, корень, степень)?';
 
   function galaiLocalReply(q, history) {
@@ -1151,13 +1123,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     if(codeIntent){
       if(/python/.test(lower)) return 'Пример на Python:\n\ndef main():\n    print("Привет, мир!")\n\nif __name__ == "__main__":\n    main()\n\nОпиши задачу подробнее - напишу под неё!';
       if(/javascript|\bjs\b/.test(lower)) return 'Пример на JavaScript:\n\nfunction greet(name) {\n  return "Привет, " + name + "!";\n}\nconsole.log(greet("GALAI"));\n\nОпиши задачу - сделаю под неё!';
-      if(/html/.test(lower)) return 'Базовый HTML:\n\n<!DOCTYPE html>\n<html lang="ru">\n<head><meta charset="UTF-8"><title>Страница</title></head>\n<body><h1>Привет!</h1>
-<script>
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('/service-worker.js').catch(function(e){ console.warn('SW registration failed', e); }); });
-}
-</script>
-</body>\n</html>\n\nЧто хочешь сделать?';
+      if(/html/.test(lower)) return 'Базовый HTML:\n\n<!DOCTYPE html>\n<html lang="ru">\n<head><meta charset="UTF-8"><title>Страница</title></head>\n<body><h1>Привет!</h1></body>\n</html>\n\nЧто хочешь сделать?';
       return 'Расскажи подробнее: какой язык, что должна делать программа? Могу написать игры (змейка, тетрис, понг, крестики-нолики), калькулятор и многое другое!';
     }
 
@@ -1283,7 +1249,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     else{btn.style.background='rgba(255,255,255,0.06)';btn.style.color='rgba(255,255,255,0.2)';btn.style.boxShadow='none';}
   }
 
-  function renderAll(){renderSidebar();renderHeader();renderMessages();updateSendBtn(); if(!loading) saveGalaiState();}
+  function renderAll(){renderSidebar();renderHeader();renderMessages();updateSendBtn();saveGalaiState();}
 
   // ── Send text message ──
   async function sendMessage(){
@@ -1957,12 +1923,6 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     window.initGalaiEngine = initGalaiEngine;
     initGalaiEngine();
   })();
-</script>
-
-<script>
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('/service-worker.js').catch(function(e){ console.warn('SW registration failed', e); }); });
-}
 </script>
 </body>
 </html>

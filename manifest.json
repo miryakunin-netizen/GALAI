@@ -2,10 +2,9 @@
   "name": "GALAI",
   "short_name": "GALAI",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
   "background_color": "#05040F",
-  "theme_color": "#05040F",
+  "theme_color": "#0a0619",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
