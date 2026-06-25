@@ -10,7 +10,15 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'GALAI_FULL.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/galai_google_pwa.html', (req, res) => {
+  res.redirect('/');
+});
+
+app.get('/GALAI_FULL.html', (req, res) => {
+  res.redirect('/');
 });
 
 app.get('/api/search', async (req, res) => {
@@ -20,16 +28,31 @@ app.get('/api/search', async (req, res) => {
 
     const key = process.env.GOOGLE_API_KEY;
     const cx = process.env.GOOGLE_CX;
+
     if (!key || !cx) {
-      return res.status(500).json({ error: 'Server is missing GOOGLE_API_KEY or GOOGLE_CX environment variables' });
+      return res.status(500).json({
+        error: 'Server is missing GOOGLE_API_KEY or GOOGLE_CX environment variables'
+      });
     }
 
-    const params = new URLSearchParams({ key, cx, q, num: '7', safe: 'active', lr: 'lang_ru' });
-    const r = await fetch(`https://www.googleapis.com/customsearch/v1?${params.toString()}`);
+    const params = new URLSearchParams({
+      key,
+      cx,
+      q,
+      num: '7',
+      safe: 'active',
+      lr: 'lang_ru'
+    });
+
+    const googleUrl = `https://www.googleapis.com/customsearch/v1?${params.toString()}`;
+    const r = await fetch(googleUrl);
     const data = await r.json();
 
     if (!r.ok) {
-      return res.status(r.status).json({ error: data.error?.message || 'Google Search API error', details: data });
+      return res.status(r.status).json({
+        error: data.error?.message || 'Google Search API error',
+        details: data
+      });
     }
 
     res.json({
@@ -45,4 +68,6 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`GALAI is running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`GALAI is running on port ${PORT}`);
+});

@@ -4,7 +4,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#05040F",
-  "theme_color": "#A78BFA",
-  "description": "GALAI AI chat with web search",
+  "theme_color": "#6D28D9",
+  "lang": "ru",
   "icons": []
 }
