@@ -4,15 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GALAI</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0a0619">
-
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
-<style>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" /><style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #05040F; font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; }
     #app { overflow: hidden; }
@@ -337,21 +334,16 @@
     }
 
 
-    /* GALAI Railway/iPhone safe viewport patch */
-    html, body, #app { min-height: 100dvh; }
-    @supports (-webkit-touch-callout: none) {
-      html, body { height: -webkit-fill-available; }
-      #app, #main, #sidebar { min-height: -webkit-fill-available; }
-      #input-area { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
-    }
+    /* GALAI Railway/mobile safe fixes */
+    #sidebar-backdrop.open { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
     @media (max-width: 768px) {
-      body { overflow: hidden; }
-      #main { height: 100dvh; }
-      #messages-wrap { padding-bottom: 6px; }
-      #input-area { position: sticky; bottom: 0; background: rgba(5,4,20,0.92); backdrop-filter: blur(12px); }
-      #sidebar-backdrop.open { backdrop-filter: none; }
+      html, body { height: 100%; overflow: hidden; }
+      #main { height: 100dvh; min-height: 100dvh; }
+      #chat-tab { height: 100dvh; min-height: 0; }
+      #input-area { padding-bottom: calc(14px + env(safe-area-inset-bottom)); background: rgba(5,4,20,0.85); }
+      #messages-wrap { padding-bottom: 8px; }
+      #msg-input { min-height: 38px; }
     }
-
   </style>
 </head>
 <body>
@@ -374,11 +366,11 @@
     <div id="projects-list"></div>
     <div id="new-project-area">
       <button id="new-project-btn">✦ Новый проект</button>
-      <button onclick="galaiResetChats()" style="width:100%;margin-top:8px;padding:8px 12px;background:rgba(248,113,113,0.08);border:1px dashed rgba(248,113,113,0.25);border-radius:8px;color:rgba(248,113,113,0.7);font-size:12px;cursor:pointer;font-family:Inter,sans-serif;text-align:left">🗑 Сбросить чаты</button>
       <div id="new-project-form">
         <input id="new-project-name-input" class="cosmic-input" placeholder="Название проекта..." />
         <button id="new-project-confirm" class="confirm-btn" style="background:#A78BFA;">✓</button>
       </div>
+      <button onclick="galaiResetChats()" style="margin-top:8px;width:100%;padding:8px 12px;background:rgba(248,113,113,0.08);border:1px dashed rgba(248,113,113,0.25);border-radius:8px;color:rgba(248,113,113,0.75);font-size:12px;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;">🗑 Сбросить чаты</button>
     </div>
   </aside>
 
@@ -512,35 +504,33 @@
     {id:2,name:"Работа",color:"#60A5FA",chats:[{id:201,name:"Анализ данных",messages:[{role:"assistant",text:"Привет! Чем могу помочь?"}]}]}
   ];
 
-  // ── Chat/project persistence ──
-  function loadGalaiState(){
-    try {
-      var raw = localStorage.getItem('galai_projects_v2');
-      if(!raw) return;
-      var data = JSON.parse(raw);
-      if(data && Array.isArray(data.projects) && data.projects.length){
-        projects.splice(0, projects.length);
-        data.projects.forEach(function(p){ projects.push(p); });
-        nextId = Number(data.nextId) || nextId;
-        activeChatId = Number(data.activeChatId) || (projects[0] && projects[0].chats[0] && projects[0].chats[0].id) || activeChatId;
-        activeProjectId = Number(data.activeProjectId) || (projects[0] && projects[0].id) || activeProjectId;
-      }
-    } catch(e){ console.warn('GALAI state load failed:', e); }
-  }
-  function saveGalaiState(){
-    try {
-      localStorage.setItem('galai_projects_v2', JSON.stringify({projects:projects,nextId:nextId,activeChatId:activeChatId,activeProjectId:activeProjectId}));
-    } catch(e){ console.warn('GALAI state save failed:', e); }
-  }
-  window.galaiResetChats = function(){
-    localStorage.removeItem('galai_projects_v2');
-    location.reload();
-  };
-  loadGalaiState();
-
-
   function getActiveChat(){return projects.flatMap(p=>p.chats).find(c=>c.id===activeChatId);}
   function getActiveProject(){return projects.find(p=>p.id===activeProjectId);}
+
+  // ── Persistent chats/projects (localStorage) ──
+  function galaiLoadState(){
+    try {
+      var raw = localStorage.getItem('galai_state_v2');
+      if(!raw) return;
+      var state = JSON.parse(raw);
+      if(state && Array.isArray(state.projects) && state.projects.length){
+        projects.splice(0, projects.length, ...state.projects);
+        activeProjectId = state.activeProjectId || projects[0].id;
+        activeChatId = state.activeChatId || (projects[0].chats && projects[0].chats[0] && projects[0].chats[0].id) || activeChatId;
+        nextId = state.nextId || nextId;
+      }
+    } catch(e){ console.warn('GALAI: cannot load saved chats', e); }
+  }
+  function galaiSaveState(){
+    try {
+      localStorage.setItem('galai_state_v2', JSON.stringify({ projects, activeProjectId, activeChatId, nextId }));
+    } catch(e){ console.warn('GALAI: cannot save chats', e); }
+  }
+  window.galaiResetChats = function(){
+    localStorage.removeItem('galai_state_v2');
+    location.reload();
+  };
+  galaiLoadState();
 
   // ── Local AI (no API key needed) ──
   async function callAPI(messages, onChunk) {
@@ -591,31 +581,27 @@
     return galaiLocalReply(last, messages);
   }
 
-
-  // ── Google Search via Railway backend (/api/search); falls back to built-in sources if unavailable ──
-  async function galaiGoogleSearch(query){
+  // ── Internet lookup (Google backend first, then Wikipedia/other free sources) ──
+  async function galaiGoogleBackendLookup(query){
     try {
       var res = await fetch('/api/search?q=' + encodeURIComponent(query));
       if(!res.ok) return null;
       var data = await res.json();
       if(!data.items || !data.items.length) return null;
-      return '🌐 Найдено через Google:\n\n' + data.items.slice(0,7).map(function(item, i){
-        return (i+1) + '. ' + (item.title || 'Без названия') + '\n' +
-          (item.snippet || '') + '\n' +
-          (item.link || '');
+      return '🌐 Найдено через Google:\n\n' + data.items.map(function(item, i){
+        return (i+1) + '. ' + item.title + '\n' + (item.snippet || '') + '\n' + item.link;
       }).join('\n\n');
     } catch(e){
-      console.warn('GALAI Google Search unavailable, using fallback sources:', e);
+      console.warn('GALAI Google backend unavailable:', e);
       return null;
     }
   }
 
-  // ── Internet lookup (Wikipedia/DuckDuckGo fallback, no API key needed in browser) ──
   async function galaiWebLookup(query){
-    var googleResult = await galaiGoogleSearch(query);
-    if(googleResult) return googleResult;
-
     var lower = query.toLowerCase();
+
+    var googleResult = await galaiGoogleBackendLookup(query);
+    if(googleResult) return googleResult;
 
     // Country-specific factual questions (capital, population, currency,
     // language, etc.) are answered far more reliably and precisely by
@@ -1249,7 +1235,7 @@
     else{btn.style.background='rgba(255,255,255,0.06)';btn.style.color='rgba(255,255,255,0.2)';btn.style.boxShadow='none';}
   }
 
-  function renderAll(){renderSidebar();renderHeader();renderMessages();updateSendBtn();saveGalaiState();}
+  function renderAll(){renderSidebar();renderHeader();renderMessages();updateSendBtn();galaiSaveState();}
 
   // ── Send text message ──
   async function sendMessage(){

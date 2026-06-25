@@ -45,4 +45,6 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`GALAI is running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`GALAI is running on port ${PORT}`);
+});
