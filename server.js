@@ -203,5 +203,5 @@ import searchRoute from "./server/routes/search.js";
 
 app.use("/api/search", searchRoute);
 
-const chatRoute = require("./server/routes/chat");
+import chatRoute from "./server/routes/chat.js";
 app.use("/api/chat", chatRoute);
