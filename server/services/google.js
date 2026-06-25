@@ -1,25 +1,30 @@
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GOOGLE_CX = process.env.GOOGLE_CX;
 
-async function googleSearch(query) {
-    const url =
-        `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}` +
-        `&cx=${GOOGLE_CX}` +
-        `&q=${encodeURIComponent(query)}`;
+export async function googleSearch(query) {
+  if (!GOOGLE_API_KEY || !GOOGLE_CX) {
+    throw new Error("GOOGLE_API_KEY or GOOGLE_CX is missing");
+  }
 
-    const response = await fetch(url);
+  const params = new URLSearchParams({
+    key: GOOGLE_API_KEY,
+    cx: GOOGLE_CX,
+    q: query,
+    num: "5"
+  });
 
-    if (!response.ok) {
-        throw new Error(`Google Search API error: ${response.status}`);
-    }
+  const url = `https://www.googleapis.com/customsearch/v1?${params.toString()}`;
+  const response = await fetch(url);
+  const data = await response.json();
 
-    const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || "Google Search API error");
+  }
 
-    return (data.items || []).map(item => ({
-        title: item.title,
-        snippet: item.snippet,
-        link: item.link
-    }));
+  return (data.items || []).map((item) => ({
+    title: item.title,
+    snippet: item.snippet,
+    link: item.link,
+    displayLink: item.displayLink
+  }));
 }
-
-export { googleSearch };
