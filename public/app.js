@@ -19,6 +19,8 @@ let activeProjectId = state.activeProjectId;
 let activeChatId = state.activeChatId;
 let recognition = null;
 let listening = false;
+let selectedFile = null;
+let uploadedFileText = "";
 
 function save() {
   state.activeProjectId = activeProjectId;
