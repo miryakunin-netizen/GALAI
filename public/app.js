@@ -131,3 +131,11 @@ function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" tar
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
 loadStatus();
 setupVoice(); render();
+
+  if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+}
+
+loadStatus();
+setupVoice();
+render();
