@@ -1,4 +1,6 @@
-export const GalaiCore = {
+window.GalaiCore = {
+  version: "4.0.1",
+
   shouldUseSearch(message) {
     const text = String(message || "").toLowerCase();
 
@@ -23,7 +25,7 @@ export const GalaiCore = {
     return triggers.some((word) => text.includes(word));
   },
 
-  buildPayload({ message, history = [] }) {
+  buildPayload(message, history = []) {
     return {
       message,
       history,
@@ -31,8 +33,8 @@ export const GalaiCore = {
     };
   },
 
-  async ask({ message, history = [] }) {
-    const payload = this.buildPayload({ message, history });
+  async ask(message, history = []) {
+    const payload = this.buildPayload(message, history);
 
     const response = await fetch("/api/chat", {
       method: "POST",
