@@ -215,12 +215,3 @@ app.post('/api/chat', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`GALAI 3.1 running on port ${PORT}`));
-
-import searchRoute from "./server/routes/search.js";
-
-app.use("/api/search", searchRoute);
-
-import chatRoute from "./server/routes/chat.js";
-app.use("/api/chat", chatRoute);
-
-app.use("/api/upload", uploadRoute);
