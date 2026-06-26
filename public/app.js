@@ -154,3 +154,108 @@ document.addEventListener('submit', function(e) {
 loadStatus();
 setupVoice();
 render();
+
+function repairButtons() {
+  const chatForm = document.getElementById('chatForm');
+  const messageInput = document.getElementById('messageInput');
+
+  if (chatForm && messageInput) {
+    chatForm.onsubmit = function(e) {
+      e.preventDefault();
+
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      messageInput.value = '';
+
+      if (typeof autoGrow === 'function') {
+        autoGrow(messageInput);
+      }
+
+      if (typeof sendMessage === 'function') {
+        sendMessage(text);
+      }
+    };
+  }
+
+  const newChatBtn = document.getElementById('newChatBtn');
+  if (newChatBtn && typeof project === 'function') {
+    newChatBtn.onclick = function() {
+      const p = project();
+      const c = {
+        id: typeof id === 'function' ? id('c') : 'c' + Date.now(),
+        title: 'Новый чат',
+        messages: [
+          {
+            role: 'assistant',
+            text: 'Новый чат создан. Чем помочь?'
+          }
+        ]
+      };
+
+      p.chats.unshift(c);
+      activeChatId = c.id;
+
+      if (typeof save === 'function') save();
+      if (typeof render === 'function') render();
+    };
+  }
+
+  const newProjectBtn = document.getElementById('newProjectBtn');
+  if (newProjectBtn) {
+    newProjectBtn.onclick = function() {
+      const name = prompt('Название проекта:', 'Новый проект');
+      if (!name) return;
+
+      const p = {
+        id: typeof id === 'function' ? id('p') : 'p' + Date.now(),
+        name,
+        chats: [
+          {
+            id: typeof id === 'function' ? id('c') : 'c' + Date.now(),
+            title: 'Первый чат',
+            messages: [
+              {
+                role: 'assistant',
+                text: 'Проект создан. Задай вопрос.'
+              }
+            ]
+          }
+        ]
+      };
+
+      state.projects.unshift(p);
+      activeProjectId = p.id;
+      activeChatId = p.chats[0].id;
+
+      if (typeof save === 'function') save();
+      if (typeof render === 'function') render();
+    };
+  }
+
+  const menuBtn = document.getElementById('menuBtn');
+  if (menuBtn && typeof openMenu === 'function') {
+    menuBtn.onclick = openMenu;
+  }
+
+  const backdrop = document.getElementById('backdrop');
+  if (backdrop && typeof closeMenu === 'function') {
+    backdrop.onclick = closeMenu;
+  }
+
+  const chatTabBtn = document.getElementById('chatTabBtn');
+  if (chatTabBtn && typeof switchView === 'function') {
+    chatTabBtn.onclick = function() {
+      switchView('chat');
+    };
+  }
+
+  const voiceTabBtn = document.getElementById('voiceTabBtn');
+  if (voiceTabBtn && typeof switchView === 'function') {
+    voiceTabBtn.onclick = function() {
+      switchView('voice');
+    };
+  }
+}
+
+repairButtons();
