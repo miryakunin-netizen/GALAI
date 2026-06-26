@@ -41,6 +41,17 @@
     <section id="chatView" class="view chat-view">
       <div id="messages" class="messages"></div>
       <form id="chatForm" class="composer">
+
+        <label for="fileInput" class="attach-btn">📎</label>
+
+<input
+    type="file"
+    id="fileInput"
+    hidden
+>
+
+<div id="attachedFile" class="attached-file hidden"></div>
+        
         <textarea id="messageInput" rows="1" placeholder="Спроси GALAI что угодно... Например: что такое Roblox?"></textarea>
         <button id="sendBtn" class="send" type="submit">↑</button>
       </form>
