@@ -1,4 +1,3 @@
-import { GalaiCore } from "./galai-core.js";
 const $ = (id) => document.getElementById(id);
 const STORAGE = 'galai_3_state_v1';
 let backendStatus = { gemini:false, googleSearch:false, model:null };
