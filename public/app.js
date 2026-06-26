@@ -304,18 +304,18 @@ if (fileInput) {
             return;
         }
 
-        const file = fileInput.files[0];
+const file = fileInput.files[0];
 
-        attachedFile.classList.remove("hidden");
-        attachedFile.textContent =
-            "📄 " +
-            file.name +
-            " (" +
-            Math.round(file.size / 1024) +
-            " KB)";
-    };
-}
+selectedFile = file;
+uploadedFileText = "";
 
+attachedFile.classList.remove("hidden");
+attachedFile.textContent =
+    "📄 " +
+    file.name +
+    " (" +
+    Math.round(file.size / 1024) +
+    " KB)";
   $('messageInput').oninput = e => autoGrow(e.target);
 
   $('messageInput').onkeydown = e => {
