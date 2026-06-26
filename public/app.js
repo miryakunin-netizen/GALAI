@@ -72,70 +72,40 @@ async function loadStatus(){
 }
 
 async function sendMessage(text){
-  const c = chat(); if(!c) return;
+  const c = chat();
+  if(!c) return;
+
   c.messages.push({role:'user', text});
-  if(c.title === 'Первый чат' && text.length) c.title = text.slice(0, 28);
-  save(); render();
+
+  if(c.title === 'Первый чат' && text.length) {
+    c.title = text.slice(0, 28);
+  }
+
+  save();
+  render();
+
   const thinking = { role:'assistant', text:'Думаю...' };
-  c.messages.push(thinking); renderMessages();
+  c.messages.push(thinking);
+  renderMessages();
+
   try{
-    const data = await GalaiCore.ask({
-  message: text,
-  history: c.messages.slice(0, -1)
-});
+    const r = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message:text,
+        history:c.messages.slice(0,-1),
+        useSearch:true
+      })
+    });
 
-thinking.text = data.answer || data.error || "Ошибка ответа";
+    const data = await r.json();
+    thinking.text = data.answer || data.error || 'Ошибка ответа';
 
-$('chatForm').addEventListener('submit', (e)=>{
-  e.preventDefault(); const input = $('messageInput'); const text = input.value.trim(); if(!text) return; input.value=''; autoGrow(input); sendMessage(text);
-});
-$('messageInput').addEventListener('input', e => autoGrow(e.target));
-$('messageInput').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); $('chatForm').requestSubmit(); } });
-function autoGrow(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,160)+'px'; }
+  } catch(e) {
+    thinking.text = 'Ошибка соединения с сервером: ' + e.message;
+  }
 
-$('newChatBtn').onclick = () => { const p = project(); const c = {id:id('c'), title:'Новый чат', messages:[{role:'assistant', text:'Новый чат создан. Чем помочь?'}]}; p.chats.unshift(c); activeChatId=c.id; save(); render(); };
-$('newProjectBtn').onclick = () => { const name = prompt('Название проекта:', 'Новый проект'); if(!name) return; const p={id:id('p'), name, chats:[{id:id('c'), title:'Первый чат', messages:[{role:'assistant', text:'Проект создан. Задай вопрос.'}]}]}; state.projects.unshift(p); activeProjectId=p.id; activeChatId=p.chats[0].id; save(); render(); };
-
-function openMenu(){ $('sidebar').classList.add('open'); $('backdrop').classList.add('open'); }
-function closeMenu(){ $('sidebar').classList.remove('open'); $('backdrop').classList.remove('open'); }
-$('menuBtn').onclick = openMenu; $('backdrop').onclick = closeMenu;
-
-$('chatTabBtn').onclick = () => switchView('chat');
-$('voiceTabBtn').onclick = () => switchView('voice');
-function switchView(name){
-  $('chatView').classList.toggle('hidden', name!=='chat');
-  $('voiceView').classList.toggle('hidden', name!=='voice');
-  $('chatTabBtn').classList.toggle('active', name==='chat');
-  $('voiceTabBtn').classList.toggle('active', name==='voice');
+  save();
+  renderMessages();
 }
-
-function setupVoice(){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ $('voiceStatus').textContent='Голосовой ввод недоступен. Используй поле ниже.'; return; }
-  recognition = new SR(); recognition.lang = 'ru-RU'; recognition.interimResults = true; recognition.continuous = false;
-  recognition.onstart = () => { listening=true; $('voiceOrb').classList.add('listening'); $('voiceStatus').textContent='Слушаю...'; };
-  recognition.onend = () => { listening=false; $('voiceOrb').classList.remove('listening'); $('voiceStatus').textContent='Нажми на микрофон'; };
-  recognition.onerror = (e) => { $('voiceStatus').textContent='Ошибка голоса: ' + (e.error || 'unknown'); };
-  recognition.onresult = (e) => {
-    let text=''; for(let i=0;i<e.results.length;i++) text += e.results[i][0].transcript;
-    $('voiceTranscript').textContent = text;
-    if(e.results[e.results.length-1].isFinal && text.trim()) { switchView('chat'); sendMessage(text.trim()); }
-  };
-}
-$('voiceOrb').onclick = () => { if(!recognition) return; try { listening ? recognition.stop() : recognition.start(); } catch(e){ $('voiceStatus').textContent='Не удалось запустить голос. Открой в Safari/Chrome.'; } };
-$('voiceFallbackForm').onsubmit = (e) => { e.preventDefault(); const v=$('voiceFallbackInput').value.trim(); if(!v) return; $('voiceFallbackInput').value=''; switchView('chat'); sendMessage(v); };
-
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
-function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
-
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
-loadStatus();
-setupVoice(); render();
-
-  if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js").catch(() => {});
-}
-
-loadStatus();
-setupVoice();
-render();
