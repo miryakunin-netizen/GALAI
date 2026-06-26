@@ -74,6 +74,28 @@ async function loadStatus(){
 async function sendMessage(text){
   const c = chat();
   if(!c) return;
+  $('chatForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const input = $('messageInput');
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  input.value = '';
+  autoGrow(input);
+
+  sendMessage(text);
+});
+  
+  $('messageInput').addEventListener('input', e => autoGrow(e.target));
+
+$('messageInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    $('chatForm').requestSubmit();
+  }
+});
 
   c.messages.push({ role: 'user', text });
 
@@ -124,6 +146,11 @@ async function sendMessage(text){
 }
 
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
+document.addEventListener('submit', function(e) {
+  if (e.target && e.target.id === 'chatForm') {
+    e.preventDefault();
+  }
+}, true);
 loadStatus();
 setupVoice();
 render();
