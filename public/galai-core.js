@@ -22,7 +22,7 @@ window.GalaiCore = {
       "2026"
     ];
 
-    return triggers.some((word) => text.includes(word));
+    return triggers.some(word => text.includes(word));
   },
 
   buildPayload(message, history = []) {
