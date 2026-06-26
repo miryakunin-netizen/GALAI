@@ -1,53 +1,65 @@
 window.GalaiCore = {
-  version: "4.0.1",
+  version: "4.1.0",
+
+  memory: {
+    short: [],
+    facts: []
+  },
 
   shouldUseSearch(message) {
     const text = String(message || "").toLowerCase();
 
-    const triggers = [
+    return [
       "сегодня",
       "сейчас",
       "новости",
-      "актуаль",
-      "последн",
-      "что такое",
-      "кто такой",
-      "кто такая",
       "найди",
       "поищи",
-      "цена",
-      "курс",
       "погода",
-      "2025",
-      "2026"
-    ];
-
-    return triggers.some(word => text.includes(word));
+      "курс",
+      "цена"
+    ].some(word => text.includes(word));
   },
 
-  buildPayload(message, history = []) {
-    return {
-      message,
-      history,
-      useSearch: this.shouldUseSearch(message)
-    };
+  remember(role, text) {
+    this.memory.short.push({
+      role,
+      text,
+      time: Date.now()
+    });
+
+    if (this.memory.short.length > 20) {
+      this.memory.short.shift();
+    }
+  },
+
+  getHistory(chatHistory = []) {
+    return [
+      ...chatHistory,
+      ...this.memory.short
+    ];
   },
 
   async ask(message, history = []) {
-    const payload = this.buildPayload(message, history);
+
+    this.remember("user", message);
 
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        message,
+        history: this.getHistory(history),
+        useSearch: this.shouldUseSearch(message)
+      })
     });
 
     const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.error || "Ошибка GALAI Core");
+    if (data.answer) {
+      this.remember("assistant", data.answer);
     }
 
     return data;
