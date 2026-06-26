@@ -334,4 +334,16 @@ function init() {
   }
 }
 
+function coreInfo() {
+    if (!window.GalaiCore) {
+        console.warn("GALAI Core не подключен");
+        return;
+    }
+
+    console.log(
+        "GALAI Core",
+        window.GalaiCore.version
+    );
+}
+
 document.addEventListener('DOMContentLoaded', init);
