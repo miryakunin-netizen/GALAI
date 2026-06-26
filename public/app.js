@@ -325,6 +325,9 @@ function bindEvents() {
 
 function init() {
   bindEvents();
+  
+  coreInfo();
+  
   loadStatus();
   setupVoice();
   render();
