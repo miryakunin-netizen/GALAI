@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import uploadRoute from "./server/routes/upload.js";
+import filesRoute from "./server/routes/files.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,7 @@ const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-f
 const GOOGLE_RESULTS = process.env.GOOGLE_RESULTS || '6';
 
 app.use(express.json({ limit: '2mb' }));
+app.use("/api/files", filesRoute);
 app.get("/api/check", (req, res) => {
   res.json({
     ok: true,
