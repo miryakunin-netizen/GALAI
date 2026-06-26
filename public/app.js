@@ -288,6 +288,29 @@ function bindEvents() {
     sendMessage(text);
   };
 
+  const fileInput = $('fileInput');
+const attachedFile = $('attachedFile');
+
+if (fileInput) {
+    fileInput.onchange = () => {
+
+        if (!fileInput.files.length) {
+            attachedFile.classList.add("hidden");
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        attachedFile.classList.remove("hidden");
+        attachedFile.textContent =
+            "📄 " +
+            file.name +
+            " (" +
+            Math.round(file.size / 1024) +
+            " KB)";
+    };
+}
+
   $('messageInput').oninput = e => autoGrow(e.target);
 
   $('messageInput').onkeydown = e => {
