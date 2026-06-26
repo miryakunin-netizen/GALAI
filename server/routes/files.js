@@ -2,7 +2,7 @@ import express from "express";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.get("/", (req, res) => {
     res.json({
         ok: true,
         message: "File API готов",
@@ -14,6 +14,12 @@ router.post("/", async (req, res) => {
             "png",
             "jpg"
         ]
+    });
+});
+
+router.post("/", (req, res) => {
+    res.json({
+        ok: true
     });
 });
 
