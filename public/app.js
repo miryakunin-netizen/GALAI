@@ -291,6 +291,9 @@ function bindEvents() {
   };
 
   const fileInput = $('fileInput');
+  
+  selectedFile = file;
+uploadedFileText = "";
 const attachedFile = $('attachedFile');
 
 if (fileInput) {
