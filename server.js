@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import uploadRoute from "./server/routes/upload.js";
 import filesRoute from "./server/routes/files.js";
 
+app.use("/api/upload", uploadRoute);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
