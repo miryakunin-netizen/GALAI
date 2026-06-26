@@ -122,3 +122,8 @@ async function sendMessage(text){
   save();
   renderMessages();
 }
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
+loadStatus();
+setupVoice();
+render();
