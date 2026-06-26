@@ -7,6 +7,14 @@ import uploadRoute from "./server/routes/upload.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+app.get("/api/check", (req, res) => {
+  res.json({
+    ok: true,
+    gemini: !!process.env.GEMINI_API_KEY,
+    googleApi: !!process.env.GOOGLE_API_KEY,
+    googleCx: !!process.env.GOOGLE_CX
+  });
+});
 const PORT = process.env.PORT || 3000;
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
