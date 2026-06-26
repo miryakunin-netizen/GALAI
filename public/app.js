@@ -1,3 +1,4 @@
+import { GalaiCore } from "./galai-core.js";
 const $ = (id) => document.getElementById(id);
 const STORAGE = 'galai_3_state_v1';
 let backendStatus = { gemini:false, googleSearch:false, model:null };
@@ -79,12 +80,12 @@ async function sendMessage(text){
   const thinking = { role:'assistant', text:'Думаю...' };
   c.messages.push(thinking); renderMessages();
   try{
-    const r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message:text, history:c.messages.slice(0,-1), useSearch:true }) });
-    const data = await r.json();
-    thinking.text = data.answer || data.error || 'Ошибка ответа';
-  }catch(e){ thinking.text = 'Ошибка соединения с сервером: ' + e.message; }
-  save(); renderMessages();
-}
+    const data = await GalaiCore.ask({
+  message: text,
+  history: c.messages.slice(0, -1)
+});
+
+thinking.text = data.answer || data.error || "Ошибка ответа";
 
 $('chatForm').addEventListener('submit', (e)=>{
   e.preventDefault(); const input = $('messageInput'); const text = input.value.trim(); if(!text) return; input.value=''; autoGrow(input); sendMessage(text);
