@@ -75,35 +75,48 @@ async function sendMessage(text){
   const c = chat();
   if(!c) return;
 
-  c.messages.push({role:'user', text});
+  c.messages.push({ role: 'user', text });
 
-  if(c.title === 'Первый чат' && text.length) {
+  if(c.title === 'Первый чат' && text.length){
     c.title = text.slice(0, 28);
   }
 
   save();
   render();
 
-  const thinking = { role:'assistant', text:'Думаю...' };
+  const thinking = {
+    role: 'assistant',
+    text: 'Думаю...'
+  };
+
   c.messages.push(thinking);
   renderMessages();
 
   try{
     const r = await fetch('/api/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        message:text,
-        history:c.messages.slice(0,-1),
-        useSearch:true
+        message: text,
+        history: c.messages.slice(0, -1),
+        useSearch: true
       })
     });
 
     const data = await r.json();
-    thinking.text = data.answer || data.error || 'Ошибка ответа';
 
-  } catch(e) {
-    thinking.text = 'Ошибка соединения с сервером: ' + e.message;
+    thinking.text =
+      data.answer ||
+      data.error ||
+      'Ошибка ответа';
+
+  } catch(e){
+
+    thinking.text =
+      'Ошибка соединения с сервером: ' + e.message;
+
   }
 
   save();
