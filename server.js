@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import uploadRoute from "./server/routes/upload.js";
 import filesRoute from "./server/routes/files.js";
+import { memory } from "./server/memory/memory.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -207,6 +209,13 @@ async function askGemini(message, history, results) {
 }
 
 app.post('/api/chat', async (req, res) => {
+  
+  const userId = req.ip || "anonymous";
+
+memory.save(userId, "user", message);
+
+const memoryHistory = memory.get(userId);
+  
   try {
     const message = String(req.body.message || '').trim();
     const history = Array.isArray(req.body.history) ? req.body.history : [];
