@@ -172,6 +172,7 @@ async function callGeminiModel(model, message, history, results) {
   ];
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+
   const r = await fetch(url, {
     method: 'POST',
     headers: {
@@ -189,7 +190,36 @@ async function callGeminiModel(model, message, history, results) {
     })
   });
 
- app.post('/api/chat', async (req, res) => {
+  const data = await r.json();
+
+  if (!r.ok) {
+    throw new Error(data?.error?.message || `Gemini API error (${model})`);
+  }
+
+  return data?.candidates?.[0]?.content?.parts?.map(p => p.text).join('\n').trim() || null;
+}
+
+async function askGemini(message, history, results) {
+  if (!process.env.GEMINI_API_KEY) return null;
+
+  try {
+    return await callGeminiModel(GEMINI_MODEL, message, history, results);
+  } catch (e) {
+    console.error('Gemini primary:', e.message);
+
+    if (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
+      try {
+        return await callGeminiModel(GEMINI_FALLBACK_MODEL, message, history, results);
+      } catch (e2) {
+        console.error('Gemini fallback:', e2.message);
+      }
+    }
+
+    return null;
+  }
+}
+
+app.post('/api/chat', async (req, res) => {
   try {
     const message = String(req.body.message || '').trim();
     const history = Array.isArray(req.body.history) ? req.body.history : [];
@@ -202,11 +232,29 @@ async function callGeminiModel(model, message, history, results) {
     const userId = req.ip || "anonymous";
     memory.save(userId, "user", message);
 
-    const memoryHistory = memory.get(userId);
-    
-    res.json({ answer, sources: results.slice(0, 8), mode, model: process.env.GEMINI_API_KEY ? GEMINI_MODEL : null });
+    const results = useSearch ? await findSources(message) : [];
+
+    let answer = await askGemini(message, history, results);
+    let mode = 'gemini';
+
+    if (!answer) {
+      mode = 'fallback';
+      answer = buildFallbackAnswer(message, results);
+    }
+
+    memory.save(userId, "assistant", answer);
+
+    res.json({
+      answer,
+      sources: results.slice(0, 8),
+      mode,
+      model: process.env.GEMINI_API_KEY ? GEMINI_MODEL : null
+    });
+
   } catch (e) {
-    res.status(500).json({ error: e.message || 'Ошибка GALAI' });
+    res.status(500).json({
+      error: e.message || 'Ошибка GALAI'
+    });
   }
 });
 
