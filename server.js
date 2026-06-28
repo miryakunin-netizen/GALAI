@@ -6,7 +6,6 @@ import uploadRoute from "./server/routes/upload.js";
 import filesRoute from "./server/routes/files.js";
 import { memory } from "./server/memory/memory.js";
 import streamRoute from "./server/routes/stream.js";
-import express from "express";
 import cors from "cors";
 import multer from "multer";
 
