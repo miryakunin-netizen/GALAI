@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import uploadRoute from "./server/routes/upload.js";
 import filesRoute from "./server/routes/files.js";
 import { memory } from "./server/memory/memory.js";
+import streamRoute from "./server/routes/stream.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
