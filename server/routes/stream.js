@@ -19,10 +19,11 @@ router.post("/", async (req, res) => {
     }
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Transfer-Encoding", "chunked");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
     const url =
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent`;
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent?alt=sse`;
 
     const geminiRes = await fetch(url, {
       method: "POST",
@@ -34,13 +35,14 @@ router.post("/", async (req, res) => {
         contents: [
           {
             role: "user",
-            parts: [
-              {
-                text: message
-              }
-            ]
+            parts: [{ text: message }]
           }
-        ]
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.9,
+          maxOutputTokens: 2048
+        }
       })
     });
 
@@ -50,25 +52,43 @@ router.post("/", async (req, res) => {
     }
 
     const reader = geminiRes.body.getReader();
-    const decoder = new TextDecoder();
+    const decoder = new TextDecoder("utf-8");
+
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
 
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
+      buffer += decoder.decode(value, { stream: true });
 
-      const matches = chunk.match(/"text"\s*:\s*"([^"]*)"/g) || [];
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
-      for (const match of matches) {
-        const text = match
-          .replace(/"text"\s*:\s*"/, "")
-          .replace(/"$/, "")
-          .replace(/\\n/g, "\n")
-          .replace(/\\"/g, '"');
+      for (const line of lines) {
+        const trimmed = line.trim();
 
-        res.write(text);
+        if (!trimmed.startsWith("data:")) continue;
+
+        const jsonText = trimmed.replace(/^data:\s*/, "");
+
+        if (!jsonText || jsonText === "[DONE]") continue;
+
+        try {
+          const data = JSON.parse(jsonText);
+
+          const parts =
+            data?.candidates?.[0]?.content?.parts || [];
+
+          for (const part of parts) {
+            if (part.text) {
+              res.write(part.text);
+            }
+          }
+        } catch {
+          // неполный chunk — пропускаем
+        }
       }
     }
 
