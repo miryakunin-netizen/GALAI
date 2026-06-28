@@ -50,26 +50,45 @@ export class ChatController {
         this.save();
         this.render();
 
-        try {
+try {
 
-            const response =
-                await sendChatMessage({
+    thinking.text = "";
 
-                    message: text,
+    await streamChatMessage({
 
-                    history: chat.messages.slice(0, -1)
+        message: text,
 
-                });
+        onChunk: chunk => {
 
-            thinking.text =
-                response.answer ||
-                "Нет ответа";
+            thinking.text += chunk;
 
-        } catch (e) {
+            this.render();
+
+        },
+
+        onError: e => {
 
             thinking.text =
                 "Ошибка: " + e.message;
 
+            this.render();
+
+        },
+
+        onDone: () => {
+
+            this.save();
+
+        }
+
+    });
+
+} catch (e) {
+
+    thinking.text =
+        "Ошибка: " + e.message;
+
+}
         }
 
         this.save();
