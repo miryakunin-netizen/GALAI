@@ -276,13 +276,11 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
     });
   }
 
-  res.json({
+res.json({
     ok: true,
-    filename: req.file.originalname,
-    size: req.file.size,
-    mimetype: req.file.mimetype
-  });
-
+    file: fileInfo(req.file)
+});
+  
 });
 
 app.listen(PORT, () => console.log(`GALAI 3.1 running on port ${PORT}`));
