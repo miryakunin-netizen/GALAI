@@ -37,6 +37,7 @@ app.get("/api/check", (req, res) => {
   });
 });
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/api/chat/stream", streamRoute);
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
