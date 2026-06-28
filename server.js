@@ -7,6 +7,7 @@ import filesRoute from "./server/routes/files.js";
 import { memory } from "./server/memory/memory.js";
 import streamRoute from "./server/routes/stream.js";
 import multer from "multer";
+import { fileInfo } from "./server/services/fileService.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
