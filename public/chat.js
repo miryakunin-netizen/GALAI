@@ -1,5 +1,6 @@
 import { sendChatMessage } from "./api.js";
 import { autoGrow } from "./utils.js";
+import { streamChatMessage } from "./stream.js";
 
 export class ChatController {
 
