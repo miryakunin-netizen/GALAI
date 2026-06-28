@@ -6,6 +6,9 @@ import uploadRoute from "./server/routes/upload.js";
 import filesRoute from "./server/routes/files.js";
 import { memory } from "./server/memory/memory.js";
 import streamRoute from "./server/routes/stream.js";
+import express from "express";
+import cors from "cors";
+import multer from "multer";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +29,12 @@ const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-f
 const GOOGLE_RESULTS = process.env.GOOGLE_RESULTS || '6';
 
 app.use(express.json({ limit: '2mb' }));
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 30 * 1024 * 1024
+  }
+});
 app.use("/api/upload", uploadRoute);
 app.use("/api/files", filesRoute);
 app.get("/api/check", (req, res) => {
@@ -260,4 +269,22 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+app.post("/api/upload", upload.single("file"), (req, res) => {
+
+  if (!req.file) {
+    return res.status(400).json({
+      error: "Файл не загружен"
+    });
+  }
+
+  res.json({
+    ok: true,
+    filename: req.file.originalname,
+    size: req.file.size,
+    mimetype: req.file.mimetype
+  });
+
+});
+
 app.listen(PORT, () => console.log(`GALAI 3.1 running on port ${PORT}`));
+
