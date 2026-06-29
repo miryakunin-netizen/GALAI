@@ -20,6 +20,17 @@ router.post("/", upload.single("file"), async (req, res) => {
         });
     }
     
+    console.log("========== FILE ==========");
+console.log(req.file.originalname);
+console.log(req.file.mimetype);
+console.log(req.file.size);
+
+console.log(
+    req.file.buffer
+        .slice(0, 16)
+        .toString("hex")
+);
+    
 const document =
     await extractDocument(req.file);
     
