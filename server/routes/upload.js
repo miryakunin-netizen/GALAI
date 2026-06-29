@@ -23,11 +23,12 @@ router.post("/", upload.single("file"), async (req, res) => {
 const document =
     await extractDocument(req.file);
     
-  res.json({
-    ok: true,
-    file: fileInfo(req.file),
-    pages: document.pages,
-    text: document.text.substring(0, 1000)
+      res.json({
+        ok: true,
+        file: fileInfo(req.file),
+        pages: document.pages,
+        text: document.text.substring(0, 1000)
+    });
 });
 
 export default router;
