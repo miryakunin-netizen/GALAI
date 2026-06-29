@@ -27,6 +27,16 @@ router.post("/", upload.single("file"), async (req, res) => {
       head: req.file.buffer.slice(0, 16).toString("hex")
     });
 
+    console.log("====== PDF DEBUG ======");
+console.log("Name:", req.file.originalname);
+console.log("Type:", req.file.mimetype);
+console.log("Size:", req.file.size);
+
+const head = req.file.buffer.slice(0, 20);
+
+console.log("HEX :", head.toString("hex"));
+console.log("TEXT:", head.toString("utf8"));
+
     const document = await extractDocument(req.file);
 
     return res.json({
