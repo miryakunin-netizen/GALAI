@@ -4,6 +4,7 @@ import { ChatController } from "./chat.js";
 import { ProjectController } from "./projects.js";
 import { UI } from "./ui.js";
 import { $ } from "./utils.js";
+import { initFileUpload } from "./fileUpload.js";
 
 const state = loadState();
 const ui = new UI(state);
@@ -66,6 +67,7 @@ function bindUI() {
 
 function init() {
   bindUI();
+  initFileUpload();
   render();
   loadApiStatus();
 
