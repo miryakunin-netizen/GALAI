@@ -38,19 +38,11 @@ const head = req.file.buffer.slice(0, 20);
 console.log("HEX :", head.toString("hex"));
 console.log("TEXT:", head.toString("utf8"));
 
-    const document = await extractDocument(req.file);
-    const prompt = buildDocumentPrompt(
-  document.text.substring(0, 4000),
-  "Сделай краткое содержание документа"
-);
-
-    return res.json({
-      ok: true,
-      file: fileInfo(req.file),
-      pages: document.pages,
-      text: document.text.substring(0, 1000),
-      promptPreview: prompt.substring(0, 1000)
-    });
+   return res.json({
+  ok: true,
+  file: fileInfo(req.file),
+  message: "Файл загружен. Чтение PDF будет подключено отдельным шагом."
+});
 
   } catch (e) {
     console.error("UPLOAD ERROR:", e);
