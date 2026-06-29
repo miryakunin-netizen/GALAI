@@ -48,7 +48,7 @@ console.log("TEXT:", head.toString("utf8"));
       ok: true,
       file: fileInfo(req.file),
       pages: document.pages,
-      text: document.text.substring(0, 1000)
+      text: document.text.substring(0, 1000),
       promptPreview: prompt.substring(0, 1000)
     });
 
