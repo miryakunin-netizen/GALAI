@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import { fileInfo } from "../services/fileService.js";
 import { extractDocument } from "../services/extractorService.js";
+import { buildDocumentPrompt } from "../services/documentChat.js";
 
 const router = express.Router();
 
@@ -38,12 +39,17 @@ console.log("HEX :", head.toString("hex"));
 console.log("TEXT:", head.toString("utf8"));
 
     const document = await extractDocument(req.file);
+    const prompt = buildDocumentPrompt(
+  document.text.substring(0, 4000),
+  "Сделай краткое содержание документа"
+);
 
     return res.json({
       ok: true,
       file: fileInfo(req.file),
       pages: document.pages,
       text: document.text.substring(0, 1000)
+      promptPreview: prompt.substring(0, 1000)
     });
 
   } catch (e) {
