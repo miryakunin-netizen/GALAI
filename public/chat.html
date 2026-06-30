@@ -1,1 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080617" />
+  <title>GALAI 3.1</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/favicon-32x32.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="bg"></div>
+  <button id="menuBtn" class="menu-btn" aria-label="Открыть меню">☰</button>
+  <div id="backdrop" class="backdrop"></div>
 
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <img src="/icons/android-chrome-192x192.png" alt="GALAI" class="brand-logo" />
+      <div><strong>GALAI</strong><span>3.1 Gemini</span></div>
+    </div>
+    <button id="newProjectBtn" class="primary small">+ Проект</button>
+    <div id="projects" class="projects"></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div id="activeProject" class="muted">Проект</div>
+        <div id="statusBadge" class="status-badge">Проверяю API...</div>
+        <h1 id="activeChatTitle">GALAI</h1>
+      </div>
+      <div class="top-actions">
+        <button id="newChatBtn" class="ghost">+ Чат</button>
+        <button id="voiceTabBtn" class="ghost">🎙️ Голос</button>
+        <button id="chatTabBtn" class="ghost active">💬 Чат</button>
+      </div>
+    </header>
+
+    <section id="chatView" class="view chat-view">
+      <div id="messages" class="messages"></div>
+      <form id="chatForm" class="composer">
+
+        <label for="fileInput" class="attach-btn">📎</label>
+
+<input
+    type="file"
+    id="fileInput"
+    hidden
+>
+
+<div id="attachedFile" class="attached-file hidden"></div>
+        
+        <textarea id="messageInput" rows="1" placeholder="Спроси GALAI что угодно... Например: что такое Roblox?"></textarea>
+        <button id="sendBtn" class="send" type="submit">↑</button>
+      </form>
+    </section>
+
+    <section id="voiceView" class="view voice-view hidden">
+      <div class="orb" id="voiceOrb">🎙️</div>
+      <h2 id="voiceStatus">Нажми на микрофон</h2>
+      <p class="muted center">На iPhone голос лучше работает в Safari. Если распознавание недоступно, используй поле ниже.</p>
+      <div id="voiceTranscript" class="voice-transcript"></div>
+      <form id="voiceFallbackForm" class="voice-fallback">
+        <input id="voiceFallbackInput" placeholder="Напиши вместо голоса..." />
+        <button class="primary" type="submit">Отправить</button>
+      </form>
+    </section>
+  </main>
+  <script src="/galai-core.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
