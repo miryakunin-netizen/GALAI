@@ -48,6 +48,7 @@ body{
 .hero{
 
     min-height:100vh;
+padding-top:120px;
 
     display:flex;
 
@@ -260,5 +261,85 @@ footer{
     font-size:34px;
 
 }
+
+}
+
+/* ---------- NAVBAR ---------- */
+
+.navbar{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    padding:22px 60px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:rgba(5,7,13,.55);
+
+    backdrop-filter:blur(18px);
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+    z-index:999;
+
+}
+
+.logo{
+
+    font-size:28px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+}
+
+nav{
+
+    display:flex;
+
+    gap:32px;
+
+    align-items:center;
+
+}
+
+nav a{
+
+    color:#d6d6e8;
+
+    text-decoration:none;
+
+    transition:.25s;
+
+}
+
+nav a:hover{
+
+    color:white;
+
+}
+
+.navButton{
+
+    padding:12px 22px;
+
+    border-radius:12px;
+
+    background:linear-gradient(135deg,#6d7cff,#8b5cf6);
+
+    color:white!important;
+
+    font-weight:700;
 
 }
