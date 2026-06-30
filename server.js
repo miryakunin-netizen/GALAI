@@ -283,5 +283,9 @@ res.json({
   
 });
 
+app.get("/chat", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "chat.html"));
+});
+
 app.listen(PORT, () => console.log(`GALAI 3.1 running on port ${PORT}`));
 
