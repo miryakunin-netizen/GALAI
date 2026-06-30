@@ -4,37 +4,56 @@ export function initFileUpload() {
 
     if (!input) return;
 
-    input.onchange = async () => {
+   input.onchange = async () => {
 
-        if (!input.files.length) return;
+    if (!input.files.length) return;
 
-        const file = input.files[0];
+    const file = input.files[0];
 
-        const form = new FormData();
+    const status = document.getElementById("uploadStatus");
 
-        form.append("file", file);
+    if (status) {
 
-        try {
+        status.innerHTML = `📄 Загружается: <b>${file.name}</b>...`;
 
-            const r = await fetch("/api/upload", {
-                method: "POST",
-                body: form
-            });
+    }
 
-            const data = await r.json();
+    const form = new FormData();
 
-            console.log("UPLOAD", data);
+    form.append("file", file);
 
-            alert("Файл успешно загружен");
+    try {
 
-        } catch (e) {
+        const r = await fetch("/api/upload", {
 
-            alert("Ошибка загрузки файла");
+            method: "POST",
 
-            console.error(e);
+            body: form
+
+        });
+
+        const data = await r.json();
+
+        console.log(data);
+
+        if (status) {
+
+            status.innerHTML =
+                `✅ <b>${file.name}</b><br>Документ обработан`;
 
         }
 
-    };
+    } catch (e) {
 
-}
+        console.error(e);
+
+        if (status) {
+
+            status.innerHTML =
+                "❌ Ошибка загрузки документа";
+
+        }
+
+    }
+
+};
