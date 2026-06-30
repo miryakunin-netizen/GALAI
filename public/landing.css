@@ -219,26 +219,66 @@ body{
 .brain{
 
     width:420px;
-
     height:420px;
 
     border-radius:50%;
 
     display:flex;
-
     justify-content:center;
-
     align-items:center;
 
-    font-size:44px;
+    position:relative;
 
-    font-weight:700;
+    font-size:54px;
+    font-weight:800;
+    letter-spacing:2px;
+
+    color:white;
 
     background:
-        radial-gradient(circle,#6d7cff 0%,#5b4fd6 45%,#1b2035 100%);
+        radial-gradient(circle at 30% 30%,
+        #8b7cff 0%,
+        #6d7cff 35%,
+        #4739a5 70%,
+        #1b2035 100%);
 
     box-shadow:
-        0 0 140px rgba(109,124,255,.35);
+        0 0 80px rgba(109,124,255,.45),
+        0 0 180px rgba(109,124,255,.20);
+
+    animation:
+        pulse 6s ease-in-out infinite;
+}
+
+.brain::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-18px;
+
+    border-radius:50%;
+
+    border:1px solid rgba(140,140,255,.25);
+
+    animation:rotateRing 18s linear infinite;
+
+}
+
+.brain::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-42px;
+
+    border-radius:50%;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    animation:rotateRingReverse 28s linear infinite;
 
 }
 
@@ -369,6 +409,72 @@ footer{
 .navbar{
 
     padding:0 20px;
+
+}
+
+}
+
+@keyframes pulse{
+
+0%{
+
+transform:scale(1);
+
+box-shadow:
+0 0 80px rgba(109,124,255,.45),
+0 0 180px rgba(109,124,255,.18);
+
+}
+
+50%{
+
+transform:scale(1.04);
+
+box-shadow:
+0 0 120px rgba(109,124,255,.65),
+0 0 260px rgba(109,124,255,.28);
+
+}
+
+100%{
+
+transform:scale(1);
+
+box-shadow:
+0 0 80px rgba(109,124,255,.45),
+0 0 180px rgba(109,124,255,.18);
+
+}
+
+}
+
+@keyframes rotateRing{
+
+from{
+
+transform:rotate(0deg);
+
+}
+
+to{
+
+transform:rotate(360deg);
+
+}
+
+}
+
+@keyframes rotateRingReverse{
+
+from{
+
+transform:rotate(360deg);
+
+}
+
+to{
+
+transform:rotate(0deg);
 
 }
 
