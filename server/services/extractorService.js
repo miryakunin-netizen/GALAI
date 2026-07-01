@@ -1,4 +1,5 @@
 import { extractPdf } from "../extractors/pdfExtractor.js";
+import { extractTxt } from "../extractors/txtExtractor.js";
 
 export async function extractDocument(file) {
 
