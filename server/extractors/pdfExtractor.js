@@ -1,17 +1,33 @@
-import pdf from "pdf-parse";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export async function extractPdf(buffer) {
+  const uint8Array = new Uint8Array(buffer);
 
-    const result = await pdf(buffer);
+  const loadingTask = pdfjsLib.getDocument({
+    data: uint8Array,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    disableFontFace: true
+  });
 
-    return {
+  const pdf = await loadingTask.promise;
 
-        text: result.text,
+  let text = "";
 
-        pages: result.numpages,
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
 
-        info: result.info
+    const pageText = content.items
+      .map(item => item.str || "")
+      .join(" ");
 
-    };
+    text += `\n\n--- Страница ${pageNumber} ---\n${pageText}`;
+  }
 
+  return {
+    text: text.trim(),
+    pages: pdf.numPages,
+    info: {}
+  };
 }
