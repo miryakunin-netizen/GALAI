@@ -15,6 +15,13 @@ export async function extractDocument(file) {
         return await extractPdf(file.buffer);
     }
 
+    if (
+  type === "text/plain" ||
+  file.originalname.toLowerCase().endsWith(".txt")
+) {
+  return await extractTxt(file.buffer);
+}
+
     throw new Error(
         `Формат пока не поддерживается: ${type}`
     );
