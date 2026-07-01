@@ -1,4 +1,5 @@
 import { extractPdf } from "../extractors/pdfExtractor.js";
+// import { extractPdf } from "../extractors/pdfExtractor.js";
 import { extractTxt } from "../extractors/txtExtractor.js";
 
 export async function extractDocument(file) {
@@ -22,6 +23,13 @@ export async function extractDocument(file) {
 ) {
   return await extractTxt(file.buffer);
 }
+    
+    // if (
+//   type === "application/pdf" ||
+//   file.originalname.toLowerCase().endsWith(".pdf")
+// ) {
+//   return await extractPdf(file.buffer);
+// }
 
     if (
     type === "application/pdf" ||
