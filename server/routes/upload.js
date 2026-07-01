@@ -38,12 +38,15 @@ const head = req.file.buffer.slice(0, 20);
 console.log("HEX :", head.toString("hex"));
 console.log("TEXT:", head.toString("utf8"));
 
-   return res.json({
+ const document = await extractDocument(req.file);
+
+return res.json({
   ok: true,
   file: fileInfo(req.file),
-  message: "Файл загружен. Чтение PDF будет подключено отдельным шагом."
+  pages: document.pages,
+  text: document.text.substring(0, 1000)
 });
-
+    
   } catch (e) {
     console.error("UPLOAD ERROR:", e);
 
