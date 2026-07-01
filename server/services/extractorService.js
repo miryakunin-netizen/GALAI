@@ -23,6 +23,15 @@ export async function extractDocument(file) {
   return await extractTxt(file.buffer);
 }
 
+    if (
+    type === "application/pdf" ||
+    file.originalname.toLowerCase().endsWith(".pdf")
+) {
+
+    return await extractPdf(file.buffer);
+
+}
+
     throw new Error(
         `Формат пока не поддерживается: ${type}`
     );
