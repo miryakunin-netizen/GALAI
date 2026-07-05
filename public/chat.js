@@ -49,7 +49,21 @@ export class ChatController {
 
     try {
       await streamChatMessage({
-        message: text,
+       message: window.currentDocument
+  ? `Используй следующий документ для ответа.
+
+Название файла: ${window.currentDocumentName}
+
+================ ДОКУМЕНТ ================
+
+${window.currentDocument}
+
+================ КОНЕЦ ДОКУМЕНТА ================
+
+Вопрос пользователя:
+
+${text}`
+  : text,
 
         onChunk: chunk => {
           thinking.text += chunk;
