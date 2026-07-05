@@ -24,6 +24,9 @@ export function initFileUpload() {
 
       const data = await r.json();
 
+      window.currentDocument = data.text || "";
+window.currentDocumentName = file.name;
+
       console.log("UPLOAD", data);
 
       if (!r.ok || data.ok === false) {
