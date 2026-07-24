@@ -206,6 +206,21 @@ router.post("/", async (req, res) => {
 
 export default router;
 
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    status: "online",
+    model: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite"
+  });
+});
+
+app.get("/api/status", (req, res) => {
+  res.json({
+    ok: true,
+    status: "online"
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`GALAI 3.1 running on port ${PORT}`);
 });
