@@ -158,7 +158,20 @@ async function callGeminiModel(model, message, history, results) {
     .map((r, i) => `[${i + 1}] ${r.title}\n${r.snippet}\n${r.link}`)
     .join('\n\n');
 
-  const systemInstruction = `Ты GALAI 4.0 — дружелюбный русскоязычный ИИ-помощник.
+  const currentDate = new Intl.DateTimeFormat("ru-RU", {
+  timeZone: "Asia/Krasnoyarsk",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  weekday: "long"
+}).format(new Date());
+
+ const systemInstruction = `
+Ты GALAI 5.0 — дружелюбный русскоязычный ИИ-помощник.
+
+Текущая дата: ${currentDate}.
+Всегда используй эту дату для вопросов о текущем дне, месяце и годе.
+Не определяй текущую дату по внутренней памяти модели.
 
 Твой стиль:
 - говори понятно, спокойно и по делу;
