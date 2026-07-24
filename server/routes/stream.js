@@ -34,6 +34,7 @@ router.post("/", async (req, res) => {
 
     const url =
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent?alt=sse`;
+    const currentDate = getCurrentDate();
 
     const geminiRes = await fetch(url, {
       method: "POST",
