@@ -6,6 +6,16 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 
 router.post("/", async (req, res) => {
   try {
+    function getCurrentDate() {
+  return new Intl.DateTimeFormat("ru-RU", {
+    timeZone: "Asia/Krasnoyarsk",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    weekday: "long"
+  }).format(new Date());
+}
+    
     const message = String(req.body.message || "").trim();
 
     if (!message) {
