@@ -184,3 +184,7 @@ router.post("/", async (req, res) => {
 });
 
 export default router;
+
+app.listen(PORT, () => {
+  console.log(`GALAI 3.1 running on port ${PORT}`);
+});
