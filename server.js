@@ -9,6 +9,33 @@ import streamRoute from "./server/routes/stream.js";
 import { memory } from "./server/memory/memory.js";
 
 const app = express();
+
+app.use(express.json());
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    api: "online",
+    geminiKeyConfigured: Boolean(process.env.GEMINI_API_KEY),
+    model: process.env.GEMINI_MODEL || "gemini-2.5-flash"
+  });
+});
+
+app.get("/api/status", (req, res) => {
+  res.json({
+    ok: true,
+    gemini: Boolean(process.env.GEMINI_API_KEY)
+  });
+});
+
+app.use("/api/chat/stream", streamRoute);
+
+// Раздача файлов — после API
+app.use(express.static("public"));
+
+app.listen(PORT, () => {
+  console.log(`GALAI running on port ${PORT}`);
+});
 const PORT = process.env.PORT || 10000;
 
 const __filename = fileURLToPath(import.meta.url);
