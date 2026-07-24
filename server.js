@@ -1,4 +1,25 @@
+import "dotenv/config";
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+import uploadRoute from "./server/routes/upload.js";
+import filesRoute from "./server/routes/files.js";
+import streamRoute from "./server/routes/stream.js";
+import { memory } from "./server/memory/memory.js";
+
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.json({ limit: "2mb" }));
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/api/upload", uploadRoute);
+app.use("/api/files", filesRoute);
+app.use("/api/chat/stream", streamRoute);
 
 const router = express.Router();
 
