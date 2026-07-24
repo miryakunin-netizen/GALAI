@@ -43,6 +43,36 @@ router.post("/", async (req, res) => {
         "X-goog-api-key": key
       },
       body: JSON.stringify({
+        body: JSON.stringify({
+  systemInstruction: {
+    parts: [{
+      text: `
+Ты GALAI — русскоязычный ИИ-помощник.
+
+Текущая дата: ${currentDate}.
+Текущий год определяется только из этой строки.
+
+Если пользователь спрашивает текущую дату, год или день недели,
+отвечай на основании указанной даты и не используй память модели.
+Не спорь с пользователем о текущей дате.
+`
+    }]
+  },
+
+  contents: [
+    {
+      role: "user",
+      parts: [{ text: message }]
+    }
+  ],
+
+  generationConfig: {
+    temperature: 0.7,
+    topP: 0.9,
+    maxOutputTokens: 2048
+  }
+}) 
+          
         contents: [
           {
             role: "user",
